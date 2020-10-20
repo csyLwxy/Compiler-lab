@@ -22,7 +22,7 @@ typedef union {
 id   [A-Za-z][A-Za-z0-9]*  
 int  ([1-9][0-9]*)|0
 float  ([0-9]*\.[0-9]+)|([0-9]+\.)
-char 	\'.\'
+char 	\'[0-9a-zA-Z]\'
 string 	(\".*\")
 
 
@@ -94,3 +94,19 @@ int yywrap()
 {
 return 1;
 }
+   
+// "//"		{char c=input();while(c!='\n') c=input();}
+// "/*"		{
+//             char c = input();
+//             loop:
+//             while(c!='*') c = input();
+//             c = input();
+//             if(c != '/') goto loop;
+//             }
+// .			{printf("Error type A :Mysterious character \"%s\"\n\t at Line %d\n",yytext,yylineno);}
+
+// %%
+// int yywrap()
+// {
+// return 1;
+// }
