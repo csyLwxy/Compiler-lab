@@ -1,3 +1,4 @@
+%option noyywrap
 %{
 #include "parser.tab.h"
 #include "string.h"
@@ -81,9 +82,3 @@ string 	(\".*\")
             if(c != '/') goto loop;
             }
 .			{printf("Error type A :Mysterious character \"%s\"\n\t at Line %d\n",yytext,yylineno);}
-%%
-
-int yywrap()
-{
-    return 1;
-}
