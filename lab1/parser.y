@@ -10,15 +10,14 @@ extern char *yytext;
 extern FILE *yyin;
 void yyerror(const char* fmt, ...);
 void display(struct ASTNode *,int);
-// int flag = 1;
 %}
 
 %union {
-	int    type_int;
-	float  type_float;
-        char   type_char;
-	char   type_id[32];
-	struct ASTNode *ptr;
+    int    type_int;
+    float  type_float;
+    char   type_char;
+    char   type_id[32];
+    struct ASTNode *ptr;
 };
 
 //  %type 定义非终结符的语义值类型

@@ -83,30 +83,7 @@ string 	(\".*\")
 .			{printf("Error type A :Mysterious character \"%s\"\n\t at Line %d\n",yytext,yylineno);}
 %%
 
-/* 和bison联用时，不需要这部分
-void main()
-{
-yylex();
-return 0;
-}
-*/
 int yywrap()
 {
-return 1;
+    return 1;
 }
-   
-// "//"		{char c=input();while(c!='\n') c=input();}
-// "/*"		{
-//             char c = input();
-//             loop:
-//             while(c!='*') c = input();
-//             c = input();
-//             if(c != '/') goto loop;
-//             }
-// .			{printf("Error type A :Mysterious character \"%s\"\n\t at Line %d\n",yytext,yylineno);}
-
-// %%
-// int yywrap()
-// {
-// return 1;
-// }
