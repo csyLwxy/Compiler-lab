@@ -155,17 +155,16 @@ Args:    Exp COMMA Args    {$$=mknode(2,ARGS,yylineno,$1,$3);}
        
 %%
 
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[]) {
 	yyin=fopen(argv[1],"r");
 	if (!yyin) return;
 	yylineno=1;
 	yyparse();
-	return 0;
-	}
+    return 0;
+}
 
 #include<stdarg.h>
-void yyerror(const char* fmt, ...)
-{
+void yyerror(const char* fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
     fprintf(stderr, "Grammar Error at Line %d Column %d: ", yylloc.first_line,yylloc.first_column);

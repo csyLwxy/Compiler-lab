@@ -8,7 +8,7 @@
 //以下语法树结点类型、三地址结点类型等定义仅供参考，实验时一定要根据自己的理解来定义
 int LEV;      //层号
 
-struct opn{
+struct opn {
     int kind;    //标识联合成员的属性
     int type;    //标识操作数的数据类型
     union {
@@ -22,9 +22,9 @@ struct opn{
 };
 
 struct codenode {   //三地址TAC代码结点,采用单链表存放中间语言代码
-        int  op;
-        struct opn opn1,opn2,result;
-        struct codenode  *next,*prior;
+    int  op;
+    struct opn opn1,opn2,result;
+    struct codenode  *next,*prior;
 };
 
 struct ASTNode {
