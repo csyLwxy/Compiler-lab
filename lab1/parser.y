@@ -8,6 +8,7 @@
 extern int yylineno;
 extern char *yytext;
 extern FILE *yyin;
+int yylex();
 void yyerror(const char* fmt, ...);
 void display(struct ASTNode *,int);
 %}
@@ -156,10 +157,10 @@ Args:    Exp COMMA Args    {$$=mknode(2,ARGS,yylineno,$1,$3);}
 %%
 
 int main(int argc, char *argv[]) {
-	yyin=fopen(argv[1],"r");
-	if (!yyin) return;
-	yylineno=1;
-	yyparse();
+    yyin=fopen(argv[1],"r");
+    if (!yyin) return -1;
+    yylineno=1;
+    yyparse();
     return 0;
 }
 
