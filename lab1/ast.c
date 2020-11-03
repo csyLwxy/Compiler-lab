@@ -26,15 +26,15 @@ void display(struct ASTNode *T, int indent) {
     if (T) {
         switch (T->kind) {
         case EXT_DEF_LIST:
-            display(T->ptr[0], indent); // 显示该外部定义（外部变量和函数）列表中的第一个
-            display(T->ptr[1], indent); // 显示该外部定义列表中的其它外部定义
+            display(T->ptr[0], indent); //显示该外部定义（外部变量和函数）列表中的第一个
+            display(T->ptr[1], indent); //显示该外部定义列表中的其它外部定义
             break;
 
         case EXT_VAR_DEF:
             printf("%*c外部变量定义：(%d)\n", indent, ' ', T->pos);
-            display(T->ptr[0], indent + OFFSET); // 显示外部变量类型
+            display(T->ptr[0], indent + OFFSET); //显示外部变量类型
             printf("%*c变量名：\n", indent + OFFSET, ' ');
-            display(T->ptr[1], indent + 2*OFFSET); // 显示变量列表
+            display(T->ptr[1], indent + OFFSET * 2); //显示变量列表
             break;
 
         case TYPE:
@@ -42,34 +42,38 @@ void display(struct ASTNode *T, int indent) {
             break;
 
         case EXT_DEC_LIST:
-            display(T->ptr[0], indent); // 依次显示外部变量名，
-            display(T->ptr[1], indent); // 后续还有相同的，仅显示语法树此处理代码可以和类似代码合并
+            if (T->ptr[0]->ptr[0] != NULL) {
+                printf("%*c数组名：%s\n", indent, ' ', T->ptr[0]->type_id);
+                printf("%*c数组大小：\n", indent, ' ');
+            }
+            display(T->ptr[0], indent); //依次显示外部变量名，
+            display(T->ptr[1], indent); //后续还有相同的，仅显示语法树此处理代码可以和类似代码合并
             break;
 
         case FUNC_DEF:
             printf("%*c函数定义：(%d)\n", indent, ' ', T->pos);
-            display(T->ptr[0], indent + OFFSET); // 显示函数返回类型
-            display(T->ptr[1], indent + OFFSET); // 显示函数名和参数
-            display(T->ptr[2], indent + OFFSET); // 显示函数体
+            display(T->ptr[0], indent + OFFSET); //显示函数返回类型
+            display(T->ptr[1], indent + OFFSET); //显示函数名和参数
+            display(T->ptr[2], indent + OFFSET); //显示函数体
             break;
 
         case FUNC_DEC:
             printf("%*c函数名：%s\n", indent, ' ', T->type_id);
             if (T->ptr[0]) {
                 printf("%*c函数形参：\n", indent, ' ');
-                display(T->ptr[0], indent + OFFSET); // 显示函数参数列表
+                display(T->ptr[0], indent + OFFSET); //显示函数参数列表
             }
             else
                 printf("%*c无参函数\n", indent + OFFSET, ' ');
             break;
 
         case PARAM_LIST:
-            display(T->ptr[0], indent); // 依次显示全部参数类型和名称，
+            display(T->ptr[0], indent); //依次显示全部参数类型和名称，
             display(T->ptr[1], indent);
             break;
 
         case PARAM_DEC:
-            printf("%*c类型：%s, 参数名：%s\n", indent, ' ', T->ptr[0]->type_id, T->ptr[1]->type_id);
+            printf("%*c类型：%s, 参数名：%s\n", indent, ' ', T->ptr[0]->type == INT ? "int" : "float", T->ptr[1]->type_id);
             break;
 
         case EXP_STMT:
@@ -85,104 +89,124 @@ void display(struct ASTNode *T, int indent) {
         case COMP_STM:
             printf("%*c复合语句：(%d)\n", indent, ' ', T->pos);
             printf("%*c复合语句的变量定义部分：\n", indent + OFFSET, ' ');
-            display(T->ptr[0], indent + 2*OFFSET); // 显示定义部分
+            display(T->ptr[0], indent + OFFSET * 2); //显示定义部分
             printf("%*c复合语句的语句部分：\n", indent + OFFSET, ' ');
-            display(T->ptr[1], indent + OFFSET); // 显示语句部分
+            display(T->ptr[1], indent + OFFSET * 2); //显示语句部分
             break;
 
         case STM_LIST:
-            display(T->ptr[0], indent); // 显示第一条语句
-            display(T->ptr[1], indent); // 显示剩下语句
+            display(T->ptr[0], indent); //显示第一条语句
+            display(T->ptr[1], indent); //显示剩下语句
             break;
 
         case WHILE:
-            printf("%*c循环语句：(%d)\n", indent, ' ', T->pos);
-            printf("%*c循环条件：\n", indent + OFFSET, ' ');
-            display(T->ptr[0], indent + 2*OFFSET); // 显示循环条件
-            printf("%*c循环体：(%d)\n", indent + OFFSET, ' ', T->pos);
-            display(T->ptr[1], indent + 2*OFFSET); // 显示循环体
+            printf("%*c循环语句(WHILE)：(%d)\n", indent, ' ', T->pos);
+            printf("%*c循环条件(WHILE)：\n", indent + OFFSET, ' ');
+            display(T->ptr[0], indent + OFFSET * 2); //显示循环条件
+            printf("%*c循环体(WHILE)：(%d)\n", indent + OFFSET, ' ', T->pos);
+            display(T->ptr[1], indent + OFFSET * 2); //显示循环体
             break;
-
+            
         case FOR:
-            printf("%*cFOR循环：(%d)\n", indent, ' ', T->pos);
-            printf("%*c表达式1：\n", indent, ' ');
-            display(T->ptr[0], indent + OFFSET);
-            printf("%*c表达式2：\n", indent, ' ');
-            display(T->ptr[1], indent + OFFSET);
-            printf("%*c表达式3：\n", indent, ' ');
-            display(T->ptr[2], indent + OFFSET);
-            printf("%*c循环体：\n", indent, ' ');
-            display(T->ptr[3], indent + 2*OFFSET);
+            printf("%*c循环语句(FOR)：(%d)\n", indent, ' ', T->pos);
+            printf("%*c循环条件(FOR)：\n", indent + OFFSET, ' ');
+            display(T->ptr[0], indent + OFFSET * 2);
+            printf("%*c循环体(FOR)：(%d)\n", indent + OFFSET, ' ', T->pos);
+            display(T->ptr[1], indent + OFFSET * 2);
             break;
 
-        case FOR_1:
-            printf("%*cFOR循环：(%d)\n", indent, ' ', T->pos);
-            printf("%*c表达式1：\n", indent, ' ');
+        case SWITCH_STMT:
+            printf("%*cSWITCH语句：(%d)\n", indent, ' ', T->pos);
             display(T->ptr[0], indent + OFFSET);
             display(T->ptr[1], indent + OFFSET);
-            printf("%*c表达式2：\n", indent, ' ');
-            printf("%*c表达式3：\n", indent, ' ');
-            display(T->ptr[2], indent + OFFSET);
-            printf("%*c循环体：\n", indent, ' ');
-            display(T->ptr[3], indent + 2*OFFSET);
+            break;
+
+        case CASE_STMT:
+            printf("%*cCASE语句：(%d)\n", indent, ' ', T->pos);
+            display(T->ptr[0], indent + OFFSET);
+            display(T->ptr[1], indent + OFFSET);
+            break;
+
+        case FOR_DEC:
+            display(T->ptr[0], indent + OFFSET * 2);
+            display(T->ptr[1], indent + OFFSET * 2);
+            display(T->ptr[2], indent + OFFSET * 2);
+            break;
+
+        case CONTINUE:
+            printf("%*cCONTINUE语句：(%d)\n", indent, ' ', T->pos);
+            break;
+
+        case BREAK:
+            printf("%*cBREAK语句：(%d)\n", indent, ' ', T->pos);
             break;
 
         case IF_THEN:
             printf("%*c条件语句(IF_THEN)：(%d)\n", indent, ' ', T->pos);
             printf("%*c条件：\n", indent + OFFSET, ' ');
-            display(T->ptr[0], indent + 2*OFFSET); // 显示条件
+            display(T->ptr[0], indent + OFFSET * 2); //显示条件
             printf("%*cIF子句：(%d)\n", indent + OFFSET, ' ', T->pos);
-            display(T->ptr[1], indent + 2*OFFSET); // 显示if子句
+            display(T->ptr[1], indent + OFFSET * 2); //显示if子句
             break;
 
         case IF_THEN_ELSE:
             printf("%*c条件语句(IF_THEN_ELSE)：(%d)\n", indent, ' ', T->pos);
             printf("%*c条件：\n", indent + OFFSET, ' ');
-            display(T->ptr[0], indent + 2*OFFSET); // 显示条件
+            display(T->ptr[0], indent + OFFSET * 2); //显示条件
             printf("%*cIF子句：(%d)\n", indent + OFFSET, ' ', T->pos);
-            display(T->ptr[1], indent + 2*OFFSET); // 显示if子句
+            display(T->ptr[1], indent + OFFSET * 2); //显示if子句
             printf("%*cELSE子句：(%d)\n", indent + OFFSET, ' ', T->pos);
-            display(T->ptr[2], indent + 2*OFFSET); // 显示else子句
+            display(T->ptr[2], indent + OFFSET * 2); //显示else子句
             break;
 
         case DEF_LIST:
-            display(T->ptr[0], indent); // 显示该局部变量定义列表中的第一个
-            display(T->ptr[1], indent); // 显示其它局部变量定义
+            display(T->ptr[0], indent); //显示该局部变量定义列表中的第一个
+            display(T->ptr[1], indent); //显示其它局部变量定义
             break;
 
         case VAR_DEF:
             printf("%*c局部变量定义：(%d)\n", indent, ' ', T->pos);
-            display(T->ptr[0], indent + OFFSET); // 显示变量类型
-            display(T->ptr[1], indent + OFFSET); // 显示该定义的全部变量名
+            display(T->ptr[0], indent + OFFSET); //显示变量类型
+            display(T->ptr[1], indent + OFFSET); //显示该定义的全部变量名
             break;
 
         case DEC_LIST:
             printf("%*c变量名：\n", indent, ' ');
             T0 = T;
             while (T0) {
-                if (T0->ptr[0]->kind == ID) {
-                    printf("%*c %s\n", indent + 2*OFFSET, ' ', T0->ptr[0]->type_id);
-                } else if (T0->ptr[0]->kind == ASSIGNOP) {
-                    printf("%*c %s ASSIGNOP\n ", indent + 2*OFFSET, ' ', T0->ptr[0]->ptr[0]->type_id);
-                    display(T0->ptr[0]->ptr[1], indent + strlen(T0->ptr[0]->ptr[0]->type_id) + 7); // 显示初始化表达式
-                } else {
-                    display(T0->ptr[0], indent + OFFSET);
+                if (T0->ptr[0]->kind == ID)
+                    printf("%*c %s\n", indent + OFFSET * 2, ' ', T0->ptr[0]->type_id);
+                else if (T0->ptr[0]->kind == ASSIGNOP) {
+                    printf("%*c %s ASSIGNOP\n ", indent + OFFSET * 2, ' ', T0->ptr[0]->ptr[0]->type_id);
+                    display(T0->ptr[0]->ptr[1], indent + strlen(T0->ptr[0]->ptr[0]->type_id) + 7); //显示初始化表达式
                 }
                 T0 = T0->ptr[1];
             }
             break;
 
-        case CONTINUE:
-        case BREAK:
-            printf("%*c%s\n", indent, ' ', T->type_id);
+        case ARRAY_LIST:
+            display(T->ptr[0], indent);
+            display(T->ptr[1], indent);
+            break;
+
+        case ARRAY_ID:
+            printf("%*c数组名： %s\n", indent, ' ', T->type_id);
+            printf("%*c访问下标：\n", indent, ' ');
+            display(T->ptr[0], indent + OFFSET);
+            break;
+
+        case STRUCT_DEF:
+            printf("%*c结构定义：(%d)\n", indent, ' ', T->pos);
+            display(T->ptr[0], indent + OFFSET);
+            display(T->ptr[1], indent + OFFSET);
+            break;
+
+        case STRUCT_TAG:
+            printf("%*c结构名：%s\n", indent, ' ', T->struct_name);
             break;
 
         case ID:
             printf("%*cID： %s\n", indent, ' ', T->type_id);
-            break;
-
-        case CHAR:
-            printf("%*cCHAR: %c\n", indent, ' ', T->type_char);
             break;
 
         case INT:
@@ -193,47 +217,39 @@ void display(struct ASTNode *T, int indent) {
             printf("%*cFLAOT：%f\n", indent, ' ', T->type_float);
             break;
 
-        case ARRAY:
-            for (int i = 0; i < indent; i++)
-                putchar(' ');
-            printf("ARRAY：\n");
-            display(T->ptr[0], indent + OFFSET);
-            display(T->ptr[1], indent + OFFSET);
+        case CHAR:
+            printf("%*cCHAR: %s\n", indent, ' ', T->type_char);
             break;
 
-        case STRUCT:
-            for (int i = 0; i < indent; i++)
-                putchar(' ');
-            printf("STRUCT: ID:%s\n", T->type_id);
-            display(T->ptr[0], indent + OFFSET);
+        case STRING:
+            printf("%*cSTRING: %s\n", indent, ' ', T->type_string);
             break;
 
-        case STRUCT_ACCESS:
-            printf("%*c结构成员：", indent, ' ');
-            printf("%s . %s\n", T->ptr[0]->type_id, T->ptr[1]->type_id);
-            break;
-
-        case SELFADD:
-        case SELFDEC:
-            printf("%*c%s\n", indent, ' ', T->type_id);
-            display(T->ptr[0], indent + OFFSET);
-            break;
-
-        case ADD_ASSIGNOP:
-        case MINUS_ASSIGNOP:
-        case STAR_ASSIGNOP:
-        case DIV_ASSIGNOP:
         case ASSIGNOP:
+        case PLUSASSIGNOP:
+        case MINUSASSIGNOP:
+        case STARASSIGNOP:
+        case DIVASSIGNOP:
+        case MODASSIGNOP:
         case AND:
         case OR:
         case RELOP:
         case PLUS:
+        case AUTOPLUS:
+        case AUTOMINUS:
         case MINUS:
         case STAR:
         case DIV:
+        case MOD:
             printf("%*c%s\n", indent, ' ', T->type_id);
             display(T->ptr[0], indent + OFFSET);
             display(T->ptr[1], indent + OFFSET);
+            break;
+
+        case EXP_ELE:
+            printf("%*c结构体访问：\n", indent, ' ');
+            display(T->ptr[0], indent + OFFSET);
+            printf("%*c访问成员变量：%s\n", indent + OFFSET, ' ', T->type_id);
             break;
 
         case NOT:

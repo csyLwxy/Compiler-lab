@@ -12,8 +12,10 @@ int yycolumn=1;
 typedef union {
 	int type_int;
 	int type_float;
-    char type_char;
+    char type_char[5];
 	char type_id[32];
+	char type_string[32];
+	char struct_name[32];
 	struct node *ptr;
 } YYLVAL;
 #define YYSTYPE YYLVAL
@@ -26,51 +28,58 @@ CHAR 	\'(\\.|[^'])\'
 STRING 	\"(\\.|[^"\\])*\"
 
 %%
-{INT}        {printf("(%s , INT)\n",yytext);yylval.type_int=atoi(yytext); return INT;}
-{FLOAT}      {printf("(%s , FLOAT)\n",yytext);yylval.type_float=atof(yytext); return FLOAT;}
-{CHAR}       {printf("(%s  ,CHAR)\n",yytext);yylval.type_char=yytext[1];return CHAR;}
-{STRING}     {printf("(%s, CONSTANTSTRING)\n", yytext);strcpy(yylval.type_string,yytext);return STRING;}
-"int"        {printf("(int , TYPE)\n");strcpy(yylval.type_id,  yytext);return TYPE;}
-"float"      {printf("(float , TYPE)\n");strcpy(yylval.type_id,  yytext);return TYPE;}
-"char"       {printf("(char , TYPE)\n");strcpy(yylval.type_id,  yytext);return TYPE;}
-"string"     {printf("(string , TYPE)\n");strcpy(yylval.type_id,  yytext);return TYPE;}
-"struct"     {printf("(struct , STRUCT)\n");return STRUCT;}
+{INT}       {printf("(%s , INT)\n",yytext);yylval.type_int=atoi(yytext); return INT;}
+{FLOAT}     {printf("(%s, CONSTANTFLOAT)\n", yytext);yylval.type_float=atof(yytext); return FLOAT;}
+{CHAR}      {printf("(%s, CONSTANTCHAR)\n", yytext);strcpy(yylval.type_char,yytext);return CHAR;}
+{STRING}    {printf("(%s, CONSTANTSTRING)\n", yytext);strcpy(yylval.type_string,yytext);return STRING;}
+"int"       {printf("(%s, TYPEINT)\n", yytext);strcpy(yylval.type_id, yytext);return TYPE;}
+"float"     {printf("(%s, TYPEFLOAT)\n", yytext);strcpy(yylval.type_id, yytext);return TYPE;}
+"char"      {printf("(%s, TYPECHAR)\n", yytext);strcpy(yylval.type_id, yytext);return TYPE;}
+"string"    {printf("(%s, TYPESTRING)\n", yytext);strcpy(yylval.type_id, yytext);return TYPE;}
+"void"      {printf("(%s, TYPEVOID)\n", yytext);strcpy(yylval.type_id, yytext);return TYPE;}
+"struct"    {printf("(%s, TYPESTRUCT)\n", yytext);return STRUCT;}
+"return"    {printf("(%s, RETURN)\n", yytext);return RETURN;}
+"if"        {printf("(%s, IF)\n", yytext);return IF;}
+"else"      {printf("(%s, ELSE)\n", yytext);return ELSE;}
+"while"     {printf("(%s, WHILE)\n", yytext);return WHILE;}
+"for"       {printf("(%s, FOR)\n", yytext); return FOR;}
+"continue"  {printf("(%s, CONTINUE)\n", yytext);return CONTINUE;}
+"break"     {printf("(%s, BREAK)\n", yytext); return BREAK;}
+"switch"    {printf("(%s, SWITCH)\n", yytext);return SWITCH;}
+"case"      {printf("(%s, CASE)\n", yytext);return CASE;}
+"default"   {printf("(%s, DEFAULT)\n", yytext);return DEFAULT;}
 
-"return"     {printf("(return , RETURN)\n");return RETURN;}
-"if"         {printf("(if , IF)\n");return IF;}
-"else"       {printf("(else , ELSE)\n");return ELSE;}
-"while"      {printf("(while , WHILE)\n");return WHILE;}
-"break"      {printf("(break , BREAK)\n");return BREAK;}
-"continue"   {printf("(continue , CONTINUE)\n");return CONTINUE;}
-"for"        {printf("(for , FOR)\n");return FOR;}
 
-{ID}         {printf("(%s , ID)\n",yytext);strcpy(yylval.type_id,  yytext); return ID;}// 由于关键字的形式也符合标识符的规则，所以把关键字的处理全部放在标识符的前面，优先识别
-";"			 {printf("(; , SEMI)\n");return SEMI;}
-","			 {printf("(, , COMMA)\n");return COMMA;}
-">"|"<"|">="|"<="|"=="|"!=" {printf("(%s , RELOP)\n",yytext);strcpy(yylval.type_id, yytext);return RELOP;}
-"="			{printf("(= , ASSIGNOP)\n");return ASSIGNOP;}
-"+"			{printf("(+ , PLUS)\n");return PLUS;}
-"-"			{printf("(- , MINUS)\n");return MINUS;}
-"*"			{printf("(* , STAR)\n");return STAR;}
-"/"			{printf("(/ , DIV)\n");return DIV;}
-"++"        {printf("(++ , SELFADD)\n");return SELFADD;}
-"--"        {printf("(-- , SELFDEC)\n");return SELFDEC;}
-"+="        {printf("(+= , ADD_ASSIGNOP)\n");return ADD_ASSIGNOP;}
-"-="        {printf("(-= , MINUS_ASSIGNOP)\n");return MINUS_ASSIGNOP;}
-"*="        {printf("(*= , STAR_ASSIGNOP)\n");return STAR_ASSIGNOP;}
-"/="        {printf("(/= , DIV_ASSIGNOP)\n");return DIV_ASSIGNOP;}
-"&&"        {printf("(&& , AND)\n");return AND;}
-"||"        {printf("(|| , OR)\n");return OR;}
-"!"			{printf("(! , NOT)\n");return NOT;}
-"("			{printf("(( , LP)\n");return LP;}
-")"			{printf("() , RP)\n");return RP;}
-"{"			{printf("({ , LC)\n");return LC;}
-"}"			{printf("(} , RC)\n");return RC;}
-"."         {printf("(. , DOT)\n");return DOT;}
-"["         {printf("([ , LB)\n");return LB;}
-"]"         {printf("(] , RB)\n");return RB;}
-[\n]        {yycolumn=1;}
-[ \r\t]     {}
+{ID}        {printf("(%s, INDENTIFIER)\n", yytext);strcpy(yylval.type_id,  yytext); return ID;}
+";"		    {printf("(%s, SEMI)\n", yytext);return SEMI;}
+":"         {printf("(%s, COLON)\n", yytext);return COLON;}
+","		    {printf("(%s, COMMA)\n", yytext);return COMMA;}
+"."         {printf("(%s, DOT)\n", yytext);return DOT;}
+">"|"<"|">="|"<="|"=="|"!=" {printf("(%s, RELOP)\n", yytext);strcpy(yylval.type_id, yytext);return RELOP;}
+"="		    {printf("(%s, ASSIGNOP)\n", yytext);return ASSIGNOP;}
+"+"		    {printf("(%s, PLUSOP)\n", yytext);return PLUS;}
+"-"		    {printf("(%s, MINUSOP)\n", yytext);return MINUS;}
+"*"		    {printf("(%s, STAROP)\n", yytext);return STAR;}
+"/"		    {printf("(%s, DIVOP)\n", yytext);return DIV;}
+"%"         {printf("(%s, MODOP)\n", yytext);return MOD;}
+"&&"        {printf("(%s, ANDOP)\n", yytext);return AND;}
+"||"        {printf("(%s, OROP)\n", yytext);return OR;}
+"!"		    {printf("(%s, NOTOP)\n", yytext);return NOT;}
+"++"        {printf("(%s, AUTOPLUSOP)\n", yytext); return AUTOPLUS;}
+"--"        {printf("(%s, AUTOMINUSOP)\n", yytext); return AUTOMINUS;}
+"+="        {printf("(%s, PLUSASSIGNOP)\n", yytext); return PLUSASSIGNOP;}
+"-="        {printf("(%s, MINUSASSIGNOP)\n", yytext); return MINUSASSIGNOP;}
+"*="        {printf("(%s, STARASSIGNOP)\n", yytext);return STARASSIGNOP;}
+"/="        {printf("(%s, DIVASSIGNOP)\n)", yytext);return DIVASSIGNOP;}
+"%="        {printf("(%s, MODASSIGNOP)\n", yytext);return MODASSIGNOP;}
+"("		    {printf("(%s, LP)\n", yytext);return LP;}
+")"		    {printf("(%s, RP)\n", yytext);return RP;}
+"{"		    {printf("(%s, LC)\n", yytext);return LC;}
+"}"		    {printf("(%s, RC)\n", yytext);return RC;}
+"["         {printf("(%s, LB)\n", yytext);return LB;}
+"]"         {printf("(%s, LC)\n", yytext);return RB;}
+[\n]        {printf("(\\n, EOL)\n");yycolumn=1;}   
+[ \r\t]     {}   
 .		    {printf("Error type A :Mysterious character \"%s\"\n\t at Line %d\n",yytext,yylineno);}
 \/\/[^\n]*  {printf("(%s, LINECOMMENT)\n", yytext);}        // 匹配行注释的正则表达式
 [\/][\*][^\*]*[\*]+([^\*\/][^\*]*[\*]+)*[\/] {printf("(%s, BLOCKCOMMENT)\n", yytext);} // 匹配块注释的正则表达式
