@@ -1,13 +1,14 @@
-%option noyywrap
+%option noyywrap yylineno
 %{
 #include "parser.tab.h"
 #include "string.h"
 #include "def.h"
 int yycolumn=1;
-#define YY_USER_ACTION    yylloc.first_line=yylloc.last_line=yylineno; \
-	yylloc.first_column=yycolumn;\
-    yylloc.last_column=yycolumn+yyleng-1;\
-    yycolumn+=yyleng;
+#define YY_USER_ACTION  yylloc.first_line = yylloc.last_line=yylineno;\
+                        yylloc.first_column = yycolumn;\
+                        yylloc.last_column = yycolumn+yyleng-1;\
+                        yycolumn += yyleng;
+
 typedef union {
 	int type_int;
 	int type_float;
@@ -16,26 +17,23 @@ typedef union {
 	struct node *ptr;
 } YYLVAL;
 #define YYSTYPE YYLVAL
-
 %}
-%option yylineno
 
-id   [A-Za-z][A-Za-z0-9]*  
-int  ([1-9][0-9]*)|0
-float  ([0-9]*\.[0-9]+)|([0-9]+\.)
-char 	\'[0-9a-zA-Z]\'
-string 	(\".*\")
-
+ID   	[A-Za-z_]([A-Za-z0-9_])*
+INT  	([1-9][0-9]*)|0
+FLOAT  	[0-9]*[.][0-9]+([eE][-+]?([1-9][0-9*]|[0]))?
+CHAR 	\'(\\.|[^'])\'
+STRING 	\"(\\.|[^"\\])*\"
 
 %%
-{int}        {printf("(%s , INT)\n",yytext);yylval.type_int=atoi(yytext); return INT;}
-{float}      {printf("(%s , FLOAT)\n",yytext);yylval.type_float=atof(yytext); return FLOAT;}
-{char}       {printf("(%s  ,CHAR)\n",yytext);yylval.type_char=yytext[1];return CHAR;}
+{INT}        {printf("(%s , INT)\n",yytext);yylval.type_int=atoi(yytext); return INT;}
+{FLOAT}      {printf("(%s , FLOAT)\n",yytext);yylval.type_float=atof(yytext); return FLOAT;}
+{CHAR}       {printf("(%s  ,CHAR)\n",yytext);yylval.type_char=yytext[1];return CHAR;}
+{STRING}     {printf("(%s, CONSTANTSTRING)\n", yytext);strcpy(yylval.type_string,yytext);return STRING;}
 "int"        {printf("(int , TYPE)\n");strcpy(yylval.type_id,  yytext);return TYPE;}
 "float"      {printf("(float , TYPE)\n");strcpy(yylval.type_id,  yytext);return TYPE;}
 "char"       {printf("(char , TYPE)\n");strcpy(yylval.type_id,  yytext);return TYPE;}
 "string"     {printf("(string , TYPE)\n");strcpy(yylval.type_id,  yytext);return TYPE;}
-
 "struct"     {printf("(struct , STRUCT)\n");return STRUCT;}
 
 "return"     {printf("(return , RETURN)\n");return RETURN;}
@@ -46,9 +44,9 @@ string 	(\".*\")
 "continue"   {printf("(continue , CONTINUE)\n");return CONTINUE;}
 "for"        {printf("(for , FOR)\n");return FOR;}
 
-{id}       {printf("(%s , ID)\n",yytext);strcpy(yylval.type_id,  yytext); return ID;/*由于关键字的形式也符合标识符的规则，所以把关键字的处理全部放在标识符的前面，优先识别*/}
-";"			{printf("(; , SEMI)\n");return SEMI;}
-","			{printf("(, , COMMA)\n");return COMMA;}
+{ID}         {printf("(%s , ID)\n",yytext);strcpy(yylval.type_id,  yytext); return ID;}// 由于关键字的形式也符合标识符的规则，所以把关键字的处理全部放在标识符的前面，优先识别
+";"			 {printf("(; , SEMI)\n");return SEMI;}
+","			 {printf("(, , COMMA)\n");return COMMA;}
 ">"|"<"|">="|"<="|"=="|"!=" {printf("(%s , RELOP)\n",yytext);strcpy(yylval.type_id, yytext);return RELOP;}
 "="			{printf("(= , ASSIGNOP)\n");return ASSIGNOP;}
 "+"			{printf("(+ , PLUS)\n");return PLUS;}
@@ -71,14 +69,8 @@ string 	(\".*\")
 "."         {printf("(. , DOT)\n");return DOT;}
 "["         {printf("([ , LB)\n");return LB;}
 "]"         {printf("(] , RB)\n");return RB;}
-[\n]           {yycolumn=1;}   
-[ \r\t]          {}   
-"//"		{char c=input();while(c!='\n') c=input();}
-"/*"		{
-            char c = input();
-            loop:
-            while(c!='*') c = input();
-            c = input();
-            if(c != '/') goto loop;
-            }
-.			{printf("Error type A :Mysterious character \"%s\"\n\t at Line %d\n",yytext,yylineno);}
+[\n]        {yycolumn=1;}
+[ \r\t]     {}
+.		    {printf("Error type A :Mysterious character \"%s\"\n\t at Line %d\n",yytext,yylineno);}
+\/\/[^\n]*  {printf("(%s, LINECOMMENT)\n", yytext);}        // 匹配行注释的正则表达式
+[\/][\*][^\*]*[\*]+([^\*\/][^\*]*[\*]+)*[\/] {printf("(%s, BLOCKCOMMENT)\n", yytext);} // 匹配块注释的正则表达式
