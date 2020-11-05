@@ -67,7 +67,13 @@ ExtDef:   Specifier ExtDecList SEMI   {$$=mknode(2,EXT_VAR_DEF,yylineno,$1,$2);}
         | error SEMI   { $$ = NULL; fprintf(stderr, "Grammar Error at Line %d Column %d：",yylloc.first_line,yylloc.first_column);}
         ;
 
-Specifier:  TYPE    {$$=mknode(0,TYPE,yylineno);strcpy($$->type_id,$1);$$->type=!strcmp($1,"int")?INT:FLOAT;}   
+Specifier:  TYPE {
+                    $$=mknode(0,TYPE,yylineno);strcpy($$->type_id,$1);
+                    if(!strcmp($1,"int")) $$->type = INT;
+                    else if(!strcmp($1,"float")) $$->type = FLOAT;
+                    else if(!strcmp($1,"char")) $$->type = CHAR;
+                    else if(!strcmp($1,"string")) $$->type = STRING;
+            }
         | StructSpecifier {}
         ;
 
