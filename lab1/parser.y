@@ -22,6 +22,7 @@ void display(struct ASTNode *,int);
     char   struct_name[32];
     struct ASTNode *ptr;
 };
+
 //  %type 定义非终结符的语义值类型
 %type  <ptr> program ExtDefList ExtDef Specifier ExtDecList FuncDec CompSt VarList VarDec ParamDec Stmt StmList DefList Def DecList Dec Exp Args Arraylist ForDec StructSpecifier CaseType
 
@@ -62,17 +63,16 @@ ExtDefList: {$$=NULL;}
         ;
 
 ExtDef:   Specifier ExtDecList SEMI   {$$=mknode(2,EXT_VAR_DEF,yylineno,$1,$2);}   //该结点对应一个外部变量声明
-        | Specifier SEMI
         | Specifier FuncDec CompSt    {$$=mknode(3,FUNC_DEF,yylineno,$1,$2,$3);}         //该结点对应一个函数定义
         | error SEMI   { $$ = NULL; fprintf(stderr, "Grammar Error at Line %d Column %d：",yylloc.first_line,yylloc.first_column);}
         ;
 
 Specifier:  TYPE {
-                    $$=mknode(0,TYPE,yylineno);strcpy($$->type_id,$1);
-                    if(!strcmp($1,"int")) $$->type = INT;
-                    else if(!strcmp($1,"float")) $$->type = FLOAT;
-                    else if(!strcmp($1,"char")) $$->type = CHAR;
-                    else if(!strcmp($1,"string")) $$->type = STRING;
+                $$=mknode(0,TYPE,yylineno);strcpy($$->type_id,$1);
+                if(!strcmp($1,"int")) $$->type = INT;
+                else if(!strcmp($1,"float")) $$->type = FLOAT;
+                else if(!strcmp($1,"char")) $$->type = CHAR;
+                else if(!strcmp($1,"string")) $$->type = STRING;
             }
         | StructSpecifier {}
         ;
@@ -161,7 +161,7 @@ Exp:      Exp ASSIGNOP Exp {$$=mknode(2,ASSIGNOP,yylineno,$1,$3);strcpy($$->type
         | Exp MODASSIGNOP Exp {$$=mknode(2,MODASSIGNOP,yylineno,$1,$3);strcpy($$->type_id, "MODASSIGNOP");}
         | Exp AND Exp   {$$=mknode(2,AND,yylineno,$1,$3);strcpy($$->type_id,"AND");}
         | Exp OR Exp    {$$=mknode(2,OR,yylineno,$1,$3);strcpy($$->type_id,"OR");}
-        | Exp RELOP Exp {$$=mknode(2,RELOP,yylineno,$1,$3);strcpy($$->type_id,$2);}  //词法分析关系运算符号自身值保存在$2中
+        | Exp RELOP Exp {$$=mknode(2,RELOP,yylineno,$1,$3);strcpy($$->type_id,$2);}  // 词法分析关系运算符号自身值保存在$2中
         | Exp PLUS Exp  {$$=mknode(2,PLUS,yylineno,$1,$3);strcpy($$->type_id,"PLUS");}
         | Exp MINUS Exp {$$=mknode(2,MINUS,yylineno,$1,$3);strcpy($$->type_id,"MINUS");}
         | Exp STAR Exp  {$$=mknode(2,STAR,yylineno,$1,$3);strcpy($$->type_id,"STAR");}
@@ -170,9 +170,10 @@ Exp:      Exp ASSIGNOP Exp {$$=mknode(2,ASSIGNOP,yylineno,$1,$3);strcpy($$->type
         | AUTOPLUS Exp  {$$=mknode(1,AUTOPLUS,yylineno,$2);strcpy($$->type_id, "LPAUTOPLUS");}
         | AUTOMINUS Exp {$$=mknode(1,AUTOMINUS,yylineno,$2);strcpy($$->type_id, "LPAUTOMINUS");}
         | LP Exp RP     {$$=$2;}
-        /* | MINUS Exp %prec UMINUS   {$$=mknode(1,UMINUS,yylineno,$2);strcpy($$->type_id,"UMINUS");} */
+        | MINUS Exp %prec UMINUS   {$$=mknode(1,UMINUS,yylineno,$2);strcpy($$->type_id,"UMINUS");}
         | NOT Exp       {$$=mknode(1,NOT,yylineno,$2);strcpy($$->type_id,"NOT");}
         | ID LP Args RP {$$=mknode(1,FUNC_CALL,yylineno,$3);strcpy($$->type_id,$1);}
+        | ID LP RP      {$$=mknode(0,FUNC_CALL,yylineno);strcpy($$->type_id,$1);}
         | ID            {$$=mknode(0,ID,yylineno);strcpy($$->type_id,$1);}
         | INT           {$$=mknode(0,INT,yylineno);$$->type_int=$1;$$->type=INT;}
         | CHAR          {$$=mknode(0,CHAR,yylineno);strcpy($$->type_char, $1);$$->type=CHAR;}
@@ -180,7 +181,6 @@ Exp:      Exp ASSIGNOP Exp {$$=mknode(2,ASSIGNOP,yylineno,$1,$3);strcpy($$->type
         | STRING        {$$=mknode(0,STRING,yylineno);strcpy($$->type_string,$1);$$->type=STRING;}
         | ID Arraylist  {$$=mknode(1,ARRAY_ID,yylineno,$2);strcpy($$->type_id,$1);}
         | Exp DOT ID    {$$=mknode(1,EXP_ELE,yylineno,$1); strcpy($$->type_id,$3);}
-        | {$$=NULL;}
         ;
 
 Args:     Exp COMMA Args    {$$=mknode(2,ARGS,yylineno,$1,$3);}
@@ -200,7 +200,7 @@ int main(int argc, char *argv[]) {
 void yyerror(const char* fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
-    fprintf(stderr, "Grammar Error at Line %d Column %d: ", yylloc.first_line,yylloc.first_column);
+    fprintf(stderr, "Grammar Error at Line %d Column %d: \n", yylloc.first_line,yylloc.first_column);
     vfprintf(stderr, fmt, ap);
     fprintf(stderr, ".\n");
 }

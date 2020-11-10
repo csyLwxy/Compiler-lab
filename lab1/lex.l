@@ -50,7 +50,7 @@ STRING 	\"(\\.|[^"\\])*\"
 "default"   {printf("(%s, DEFAULT)\n", yytext);return DEFAULT;}
 
 
-{ID}        {printf("(%s, INDENTIFIER)\n", yytext);strcpy(yylval.type_id,  yytext); return ID;}
+{ID}        {printf("(%s, INDENTIFIER)\n", yytext);strcpy(yylval.type_id,  yytext); return ID;};/*由于关键字的形式也符合表示符的规则，所以把关键 字的处理全部放在标识符的前面，优先识别*/
 ";"		    {printf("(%s, SEMI)\n", yytext);return SEMI;}
 ":"         {printf("(%s, COLON)\n", yytext);return COLON;}
 ","		    {printf("(%s, COMMA)\n", yytext);return COMMA;}
@@ -66,7 +66,7 @@ STRING 	\"(\\.|[^"\\])*\"
 "||"        {printf("(%s, OROP)\n", yytext);return OR;}
 "!"		    {printf("(%s, NOTOP)\n", yytext);return NOT;}
 "++"        {printf("(%s, AUTOPLUSOP)\n", yytext); return AUTOPLUS;}
-"--"        {printf("(%s, AUTOMINUSOP)\n", yytext); return AUTOMINUS;}
+"--"        {printf("(%s, AUTOMINUS)\n", yytext); return AUTOMINUS;}
 "+="        {printf("(%s, PLUSASSIGNOP)\n", yytext); return PLUSASSIGNOP;}
 "-="        {printf("(%s, MINUSASSIGNOP)\n", yytext); return MINUSASSIGNOP;}
 "*="        {printf("(%s, STARASSIGNOP)\n", yytext);return STARASSIGNOP;}
