@@ -16,6 +16,8 @@ struct node{
     int l;
 };
 
+int a,b,c;
+
 /* 这是一个块注释s
 用于测试块注释 */
 

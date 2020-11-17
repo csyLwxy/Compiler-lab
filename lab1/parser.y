@@ -62,9 +62,11 @@ ExtDefList: {$$=NULL;}
         | ExtDef ExtDefList {$$=mknode(2,EXT_DEF_LIST,yylineno,$1,$2);}   //每一个EXTDEFLIST的结点，其第1棵子树对应一个外部变量声明或函数
         ;
 
-ExtDef:   Specifier ExtDecList SEMI   {$$=mknode(2,EXT_VAR_DEF,yylineno,$1,$2);}   //该结点对应一个外部变量声明
-        | Specifier FuncDec CompSt    {$$=mknode(3,FUNC_DEF,yylineno,$1,$2,$3);}         //该结点对应一个函数定义
-        | error SEMI   { $$ = NULL; fprintf(stderr, "Grammar Error at Line %d Column %d：",yylloc.first_line,yylloc.first_column);}
+ExtDef:   Specifier ExtDecList SEMI   {$$=mknode(2,EXT_VAR_DEF,yylineno,$1,$2);}        //该结点对应一个外部变量声明
+        | StructSpecifier SEMI
+        | Specifier FuncDec CompSt    {$$=mknode(3,FUNC_DEF,yylineno,$1,$2,$3);}        //该结点对应一个函数定义
+        | StructSpecifier SEMI                                                          //该结点对应一个结构体定义
+        | error SEMI   { $$ = NULL; }
         ;
 
 Specifier:  TYPE {
@@ -74,7 +76,6 @@ Specifier:  TYPE {
                 else if(!strcmp($1,"char")) $$->type = CHAR;
                 else if(!strcmp($1,"string")) $$->type = STRING;
             }
-        | StructSpecifier {}
         ;
 
 // 结构体的定义
