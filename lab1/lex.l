@@ -81,5 +81,5 @@ STRING 	\"(\\.|[^"\\])*\"
 [\n]        {printf("(\\n, EOL)\n");yycolumn=1;}   
 [ \r\t]     {}   
 .		    {printf("Error type A :Mysterious character \"%s\"\n\t at Line %d\n",yytext,yylineno);}
-\/\/[^\n]*  {printf("(%s, LINECOMMENT)\n", yytext);}        // 匹配行注释的正则表达式
+[\/][\/].* {printf("(%s, LINECOMMENT)\n", yytext);}//匹配注释的正则表达式
 [\/][\*][^\*]*[\*]+([^\*\/][^\*]*[\*]+)*[\/] {printf("(%s, BLOCKCOMMENT)\n", yytext);} // 匹配块注释的正则表达式

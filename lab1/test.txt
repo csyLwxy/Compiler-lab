@@ -1,4 +1,4 @@
-// 测试全局变量声明
+//测试全局变量声明
 int a,b,c;
 float m,n;
 char z;
@@ -7,28 +7,23 @@ string x;
 // 测试全局数组声明
 int arr[10];
 
-// 测试多维数组
-int arr_2[10][10];
-
 // 测试全局结构定义
 struct node{
     int q;
     int l;
 };
 
-int a,b,c;
-
 /* 这是一个块注释s
 用于测试块注释 */
 
 // 测试函数定义
 int fibo(int a) {
-// 测试if_then_else语句和逻辑运算表达式
-if(a == 1 || a == 2) 
-    return 1;
-else
-// 测试return语句和函数调用
-    return fibo(a-1) + fibo(a-2);
+    // 测试if_then_else语句和逻辑运算表达式
+    // 测试return语句和函数调用
+    if(a == 1 || a == 2) 
+        return 1;
+    else
+        return fibo(a-1) + fibo(a-2);
 }
 
 /* 这是一个块注释
@@ -40,6 +35,8 @@ int main(){
     char z;
     string x;
     int i;
+    // 测试多维数组
+    int arr_2[10][10];
     // 测试赋值
     a = 1;
     m = 1.5;

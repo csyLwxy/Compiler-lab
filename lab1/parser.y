@@ -63,9 +63,8 @@ ExtDefList: {$$=NULL;}
         ;
 
 ExtDef:   Specifier ExtDecList SEMI   {$$=mknode(2,EXT_VAR_DEF,yylineno,$1,$2);}        //该结点对应一个外部变量声明
-        | StructSpecifier SEMI
         | Specifier FuncDec CompSt    {$$=mknode(3,FUNC_DEF,yylineno,$1,$2,$3);}        //该结点对应一个函数定义
-        | StructSpecifier SEMI                                                          //该结点对应一个结构体定义
+        | StructSpecifier SEMI        {$$=mknode(1,STRUCT_DEF,yylineno,$1);}            //该结点对应一个结构体定义
         | error SEMI   { $$ = NULL; }
         ;
 
