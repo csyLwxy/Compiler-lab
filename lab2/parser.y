@@ -66,9 +66,18 @@ ExtDef:   Specifier ExtDecList SEMI   {$$=mknode(2,EXT_VAR_DEF,yylineno,$1,$2);}
         | Specifier FuncDec CompSt    {$$=mknode(3,FUNC_DEF,yylineno,$1,$2,$3);}         //该结点对应一个函数定义
         | error SEMI   { $$ = NULL; fprintf(stderr, "Grammar Error at Line %d Column %d：",yylloc.first_line,yylloc.first_column);}
          ;
-Specifier:  TYPE    {$$=mknode(0,TYPE,yylineno);strcpy($$->type_id,$1);$$->type=(!strcmp($1,"int"))? INT : ((!strcmp($1, "float")) ? FLOAT : ((!strcmp($1, "char")) ? CHAR : ((!strcmp($1, "string")) ? STRING : VOID)));}   
-          | StructSpecifier {$$=$1;}
-           ;      
+Specifier:  TYPE {
+                $$=mknode(0,TYPE,yylineno);strcpy($$->type_id,$1);
+                if(!strcmp($1,"int")) $$->type = INT;
+                else if(!strcmp($1,"float")) $$->type = FLOAT;
+                else if(!strcmp($1,"char")) $$->type = CHAR;
+                else if(!strcmp($1,"string")) $$->type = STRING;
+                else if(!strcmp($1,"void")) $$->type = VOID;
+            }   
+        | StructSpecifier {$$=$1;}
+            ;  
+
+// 结构体的定义    
 StructSpecifier: STRUCT OptTag LC DefList RC {$$=mknode(2, STRUCT_DEF, yylineno, $2, $4);}
                | STRUCT OptTag {$$=mknode(1, STRUCT_DEC, yylineno, $2);}
                ;
@@ -83,10 +92,12 @@ VarDec:  ID          {$$=mknode(0,ID,yylineno);strcpy($$->type_id,$1);}    //ID�
        | ID Arraylist {$$=mknode(1,ARRAY_DEC,yylineno,$2);strcpy($$->type_id,$1);} 
        ;
 
+// 多维数组的定义
 Arraylist:  LB Exp RB                  {$$=mknode(1,ARRAY_LIST,yylineno,$2);}
           | LB Exp RB Arraylist       {$$=mknode(2,ARRAY_LIST,yylineno,$2,$4);}
         ;
 
+// 函数的定义
 FuncDec: ID LP VarList RP   {$$=mknode(1,FUNC_DEC,yylineno,$3);strcpy($$->type_id,$1);}//函数名存放在$$->type_id
        | ID LP  RP   {$$=mknode(0,FUNC_DEC,yylineno);strcpy($$->type_id,$1);$$->ptr[0]=NULL;}//函数名存放在$$->type_id
         ;  
@@ -177,7 +188,7 @@ Args:    Exp COMMA Args    {$$=mknode(2,ARGS,yylineno,$1,$3);}
 int main(int argc, char *argv[]){
         yyin=fopen(argv[1],"r");
 	if (!yyin) 
-        return 0;
+        return -1;
 	yylineno=1;
 	yyparse();
 	return 0;
