@@ -78,7 +78,7 @@ STRING 	\"(\\.|[^"\\])*\"
 "}"		    {printf("(%s, RC)\n", yytext);return RC;}
 "["         {printf("(%s, LB)\n", yytext);return LB;}
 "]"         {printf("(%s, LC)\n", yytext);return RB;}
-[\n]        {printf("(\\n, EOL)\n");yycolumn=1;}   
+[\n]        {printf("(\\n, EOL)\n");yycolumn=1;} 
 [ \r\t]     {}   
 .		    {printf("Error type A :Mysterious character \"%s\"\n\t at Line %d\n",yytext,yylineno);}
 [\/][\/].* {printf("(%s, LINECOMMENT)\n", yytext);}//匹配注释的正则表达式

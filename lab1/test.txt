@@ -1,5 +1,5 @@
 //测试全局变量声明
-int a,b,c;
+int 121a,b,c;
 float m,n;
 char z;
 string x;
@@ -11,6 +11,7 @@ int arr[10];
 struct node{
     int q;
     int l;
+    int t;
 };
 
 /* 这是一个块注释s

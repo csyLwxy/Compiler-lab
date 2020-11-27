@@ -52,24 +52,12 @@ void semantic_error(int line, char *msg1, char *msg2){
     printf("ERROR! 第%d行, %s %s\n",line, msg1, msg2);
 }
 
-void prn_symbol(){ //显示符号表
-    int i = 0;
-    printf("%6s %6s %6s  %6s %4s %6s\n","变量名","别 名","层 号","类  型","标记","偏移量");
-    for(i = 0;i < myTable.index;i++)
-        printf("%6s %6s %6d  %6s %4c %6d\n",myTable.symbols[i].name,\
-                myTable.symbols[i].alias,myTable.symbols[i].level,\
-                myTable.symbols[i].type==INT ? "int" : (myTable.symbols[i].type==FLOAT ? "float" : (myTable.symbols[i].type==CHAR ? "char" : (myTable.symbols[i].type==STRING ? "string" : "void"))),\
-                myTable.symbols[i].flag,myTable.symbols[i].offset);
-}
-
-void DisplaySymbolTable()
-{
-    int i;
+void DisplaySymbolTable() {
     printf("\t\t\n***Symbol Table***\n");
     printf("----------------------------------------------------------------------\n");
     printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n","Index","Name","Level","Type","Flag","Param_num","Array_size");
     printf("----------------------------------------------------------------------\n");
-    for(i = 0;i < myTable.index; i++){
+    for(int i = 0;i < myTable.index; i++){
         printf("%d\t",i);
         printf("%s\t",myTable.symbols[i].name);
         printf("%d\t",myTable.symbols[i].level);
@@ -121,49 +109,33 @@ int fillSymbolTable(char *name, char *alias, int level, int type, char flag, int
     return myTable.index++; //返回的是符号在符号表中的位置序号，中间代码生成时可用序号取到符号别名
 }
 
-//填写临时变量到符号表，返回临时变量在符号表中的位置
-int fill_Temp(char *name, int level, int type, char flag, int offset)
-{
-    strcpy(myTable.symbols[myTable.index].name, "");
-    strcpy(myTable.symbols[myTable.index].alias, name);
-    myTable.symbols[myTable.index].level = level;
-    myTable.symbols[myTable.index].type = type;
-    myTable.symbols[myTable.index].flag = flag;
-    myTable.symbols[myTable.index].offset = offset;
-    return myTable.index++; //返回的是临时变量在符号表中的位置序号
-}
-
-int match_param(int i, struct ASTNode *T)
-{ // 匹配函数参数
-    int j, num = myTable.symbols[i].paramnum;
+// 匹配函数参数
+int match_param(int i, struct ASTNode *T) { 
+    int num = myTable.symbols[i].paramnum;
     int type1, type2;
     if (num == 0 && T == NULL)
         return 1;
-    for (j = 1; j < num; j++)
-    {
-        if (!T)
-        {
+    for (int j = 1; j < num; j++) {
+        if (!T) {
             semantic_error(T->pos, "", "函数调用参数太少");
             return 0;
         }
         type1 = myTable.symbols[i + j].type; //形参类型
         type2 = T->ptr[0]->type;
-        if (type1 != type2)
-        {
+        if (type1 != type2) {
             semantic_error(T->pos, "", "参数类型不匹配");
             return 0;
         }
         T = T->ptr[1];
     }
-    if (T->ptr[1])
-    { //num个参数已经匹配完，还有实参表达式
+    if (T->ptr[1]) { //num个参数已经匹配完，还有实参表达式
         semantic_error(T->pos, "", "函数调用参数太多");
         return 0;
     }
     return 1;
 }
 
-int semantic_Analysis(struct ASTNode *T, int type, int level, char flag, int command){
+int semantic_Analysis(struct ASTNode *T, int type, int level, char flag, int command) {
     int type1, type2;
     if(T) {
         switch (T->kind)
