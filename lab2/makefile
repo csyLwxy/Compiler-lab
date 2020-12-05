@@ -1,7 +1,7 @@
 parser: lex.l parser.y ast.c def.h
 	bison -d -v parser.y
 	flex lex.l
-	cc -o parser lex.yy.c parser.tab.c ast.c
+	gcc -g -o parser lex.yy.c parser.tab.c ast.c semantic_analysis.c semantic_case.c code.c exp.c
 
 clean:
 	-rm -rf lex.yy.c

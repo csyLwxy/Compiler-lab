@@ -9,3 +9,4 @@ clean:
 	-rm -rf parser.tab.c
 	-rm -rf parser.output
 	-rm -rf parser
+	-rm -rf object.s
