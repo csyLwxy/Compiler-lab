@@ -1,4 +1,4 @@
-//测试全局变量声明
+// 测试全局变量声明
 int 121a,b,c;
 float m,n;
 char z;
@@ -13,9 +13,6 @@ struct node{
     int l;
     int t;
 };
-
-/* 这是一个块注释s
-用于测试块注释 */
 
 // 测试函数定义
 int fibo(int a) {
