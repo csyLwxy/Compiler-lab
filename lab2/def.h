@@ -187,4 +187,3 @@ char *str_catch(char *s1, char *s2);
 char *newAlias();
 char *newLabel();
 char *newTemp();
-void prnIR(struct codenode *head);
